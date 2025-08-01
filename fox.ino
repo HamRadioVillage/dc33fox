@@ -24,7 +24,7 @@
 #define BATTERY_PIN A2  // GPIO2
 #define LED_Pin 10      // GPIO10 or another usable LED pin
 
-String callmessage = "W4KEK"; // your callsign goes here
+String callmessage = "FOXCALL"; // your callsign goes here
 String morse = ""; // leave this blank for now; it will be filled in during setup
 float frequency = 146.565; // 146.565 is the normal TX frequency for foxes
 int delayms = 30000; // delay between transmissions in milliseconds
