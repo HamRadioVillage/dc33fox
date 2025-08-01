@@ -20,6 +20,7 @@
  *   along with this. If not, see <https://www.gnu.org/licenses/>.
  */
 
+
 #define Sound_Pin 3 // GPIO03 | D1 on XIAO
 
 // ledc is used to create different tones
@@ -308,46 +309,35 @@ String createMorse(String toconvert)
  
 void playMorse() 
 {
-  /*
-   * short mark, dot or "dit" (.): "dot duration" is one time unit long      
-   * longer mark, dash or "dah" (-): three time units long
-   * inter-element gap between the dots and dashes within a character: one dot duration or one unit long
-   * short gap (between letters): three time units long      
-   * medium gap (between words): seven time units long
-   */
-  
   int wpm = 13;
   int morsetone = 800;
-  
-  int wpmduration = (60000) / (wpm*50);
+  int wpmduration = (60000) / (wpm * 50); // standard timing unit
 
   ledcSetup(ledc_channel, ledc_freq, ledc_resolution);
   ledcAttachPin(Sound_Pin, ledc_channel);
 
-  // convertedmessage
   Serial.println("Playing morse start");
   for (int i = 0; i < morse.length(); i++)
   {
-    // only have . - / SPACE
     switch (morse.charAt(i))
     {
       case '.':
-        ledcWriteTone(ledc_channel, morsetone * 10);
-        delay(1 * wpmduration);
+        ledcWriteTone(ledc_channel, morsetone);
+        delay(1 * wpmduration); // dot
         ledcWriteTone(ledc_channel, 0);
-        delay(1 * wpmduration);
+        delay(1 * wpmduration); // inter-element gap
         break;
       case '-':
-        ledcWriteTone(ledc_channel, morsetone * 10);
-        delay(3 * wpmduration);
+        ledcWriteTone(ledc_channel, morsetone);
+        delay(3 * wpmduration); // dash
         ledcWriteTone(ledc_channel, 0);
-        delay(1 * wpmduration);
+        delay(1 * wpmduration); // inter-element gap
         break;
       case ' ':
-        delay(2 * wpmduration);
+        delay(2 * wpmduration); // letter gap (total 3 with previous 1)
         break;
       case '/':
-        delay(6 * wpmduration);
+        delay(6 * wpmduration); // word gap (total 7 with previous 1)
         break;
     }
   }

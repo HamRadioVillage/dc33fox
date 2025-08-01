@@ -21,8 +21,10 @@
  */
 
 #include <SoftwareSerial.h> // ESP software serial for SA868 connection
+#define BATTERY_PIN A2  // GPIO2
+#define LED_Pin 10      // GPIO10 or another usable LED pin
 
-String callmessage = "Fox Hunt"; // your callsign goes here
+String callmessage = "W4KEK"; // your callsign goes here
 String morse = ""; // leave this blank for now; it will be filled in during setup
 float frequency = 146.565; // 146.565 is the normal TX frequency for foxes
 int delayms = 30000; // delay between transmissions in milliseconds
@@ -48,6 +50,8 @@ void setup(){
   pinMode(PTT_Pin, OUTPUT);
   pinMode(PD_Pin, OUTPUT);
   pinMode(HL_Pin, OUTPUT);
+  pinMode(LED_Pin, OUTPUT);
+  digitalWrite(LED_Pin, LOW);
   digitalWrite(PTT_Pin, HIGH); // LOW is TX, High is RX
   digitalWrite(PD_Pin, HIGH); // LOW is power down mode, HIGH to power up
   digitalWrite(HL_Pin, LOW); // LOW for low power, HIGH is for high power -- HIGH seems to cause issues.
@@ -59,13 +63,13 @@ void setup(){
 
 void loop(){
     digitalWrite(PTT_Pin, LOW); // Put the SA868 in TX mode
-
     delay(750);
     playMelody();
     delay(750);
     playMorse();
     
     digitalWrite(PTT_Pin, HIGH); // Put the SA868 in RX mode
+    checkBattery();
     delay(delayms); // wait 30 seconds to allow cooldown of SA868
 }
 
@@ -98,3 +102,18 @@ void moduleSetVol(uint8_t vol){
   ESerial.print(toSend);
   delay(100);
 };
+
+void checkBattery() {
+  int adcValue = analogRead(BATTERY_PIN); // 0–4095 on ESP32
+  float voltage = (adcValue / 4095.0) * 3.3 * (3.0 / 2.0);  // Adjusted for divider
+
+  float lowVoltageThreshold = 3.3;  // e.g. 3.3V battery level
+
+  if (voltage < lowVoltageThreshold) {
+    // Flash LED
+    digitalWrite(LED_Pin, HIGH);
+    delay(250);
+    digitalWrite(LED_Pin, LOW);
+    delay(250);
+  }
+}
