@@ -42,6 +42,9 @@ byte volume = 5; // Volume 1-8
 SoftwareSerial ESerial(rx, tx);
 
 void setup(){
+  Serial.begin(115200);        // Main serial monitor (USB)
+  while (!Serial);             // Optional: wait for connection
+  Serial.println("Fox Beacon Starting...");
   ESerial.begin(9600);
   delay(initial_delay);
 
@@ -62,13 +65,16 @@ void setup(){
 }
 
 void loop(){
+    Serial.println("Transmitting...");
     digitalWrite(PTT_Pin, LOW); // Put the SA868 in TX mode
     delay(750);
+    Serial.println("Playing melody...");
     playMelody();
     delay(750);
+    Serial.println("Playing Morse...");
     playMorse();
-    
     digitalWrite(PTT_Pin, HIGH); // Put the SA868 in RX mode
+    Serial.println("Done transmitting.");
     checkBattery();
     delay(delayms); // wait 30 seconds to allow cooldown of SA868
 }
@@ -108,9 +114,12 @@ void checkBattery() {
   float voltage = (adcValue / 4095.0) * 3.3 * (3.0 / 2.0);  // Adjusted for divider
 
   float lowVoltageThreshold = 3.3;  // e.g. 3.3V battery level
+  Serial.print("Battery Voltage: ");
+  Serial.println(voltage);
 
   if (voltage < lowVoltageThreshold) {
     // Flash LED
+    Serial.println("Low battery! Flashing warning LED.");
     digitalWrite(LED_Pin, HIGH);
     delay(250);
     digitalWrite(LED_Pin, LOW);
